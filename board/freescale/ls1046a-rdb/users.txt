@@ -1,0 +1,2 @@
+user 1000 user 1000 =user!1 /home/user /bin/zsh sudo
+unbound -1 unbound -1 = - /bin/sh - Unbound user

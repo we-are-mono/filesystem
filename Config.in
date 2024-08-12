@@ -1,0 +1,2 @@
+# Uncomment the following when adding packages (and change the name)
+# source "$BR2_EXTERNAL_MONO_FILESYSTEM_PATH/package/package-name/Config.in"
