@@ -1,0 +1,33 @@
+name: Build RootFS Images
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git autoconf bison flex texinfo help2man gawk libtool-bin libncurses5-dev unzip libbpf-dev libmount-dev fdisk curl gcc g++ gperf make python3-dev automake libtool wget bzip2 xz-utils patch libstdc++6 rsync cpio bc
+      - name: Checkout Source
+        uses: actions/checkout@v4
+      - name: Set xtool Path
+        run: mkdir /opt/x-tools
+      - name: Fetch X-Tools
+        uses: actions/checkout@v4
+        with:
+          repository: crosstool-ng/crosstool-ng
+          path: crosstool-ng
+          ref: crosstool-ng-1.26.0
+      - name: Build X-Tools
+        run: |
+          cd $GITHUB_WORKSPACE/crosstool-ng
+          ./bootstrap
+          ./configure --enable-local
+          make -j`nproc`
+          DEFCONFIG=../configs/crosstool-ng-1.26.0_defconfig ./ct-ng defconfig && \
+          ./ct-ng build -j`nproc`
+      
