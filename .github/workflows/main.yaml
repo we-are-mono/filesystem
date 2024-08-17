@@ -30,4 +30,26 @@ jobs:
           make -j`nproc`
           DEFCONFIG=../configs/crosstool-ng-1.26.0_defconfig ./ct-ng defconfig && \
           ./ct-ng build -j`nproc`
-      
+      - name: Fetch BuildRoot
+        uses: actions/checkout@v4
+        with:
+          repository: buildroot/buildroot
+          path: buildroot
+          ref: 2024.05
+      - name: Init BuildRoot Config
+        env:
+          BR2_EXTERNAL: $GITHUB_WORKSPACE
+        run: |
+          cd $GITHUB_WORKSPACE/buildroot
+          make ls1046a-rdb_defconfig
+      - name: Build RootFS Image
+        env:
+          BR2_EXTERNAL: $GITHUB_WORKSPACE
+        run: |
+          cd $GITHUB_WORKSPACE/buildroot
+          make -j`nproc`
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: $GITHUB_WORKSPACE/buildroot/output/images/*
+          
