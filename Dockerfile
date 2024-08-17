@@ -33,36 +33,35 @@ RUN apt-get update && \
     cpio \
     bc
 
-RUN useradd -m monorouter && \
-    mkdir -p /opt/x-tools && \
-    chown -R monorouter:monorouter /opt/x-tools
+RUN mkdir -p /opt/x-tools && \
+    chown -R ubuntu:ubuntu /opt/x-tools
 
-USER monorouter
+USER ubuntu
 FROM base AS xtools
 
-RUN git clone https://github.com/crosstool-ng/crosstool-ng /home/monorouter/crosstool-ng && \
-    cd /home/monorouter/crosstool-ng && \
+RUN git clone https://github.com/crosstool-ng/crosstool-ng /home/ubuntu/crosstool-ng && \
+    cd /home/ubuntu/crosstool-ng && \
     git checkout crosstool-ng-1.26.0 && \
     ./bootstrap && \
     ./configure --enable-local && \
     make -j`nproc`
 
-ADD ./configs/crosstool-ng-1.26.0_defconfig /home/monorouter/mono_filesystem/configs/crosstool-ng-1.26.0_defconfig
+ADD ./configs/crosstool-ng-1.26.0_defconfig /home/ubuntu/mono_filesystem/configs/crosstool-ng-1.26.0_defconfig
 
-RUN cd /home/monorouter/crosstool-ng && \
+RUN cd /home/ubuntu/crosstool-ng && \
     DEFCONFIG=../mono_filesystem/configs/crosstool-ng-1.26.0_defconfig ./ct-ng defconfig && \
     ./ct-ng build -j`nproc`
 
 FROM base AS rootfs
 
-WORKDIR /home/monorouter/buildroot
+WORKDIR /home/ubuntu/buildroot
 COPY --from=xtools /opt/x-tools /opt/x-tools
 
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
 USER root
-RUN chown -R monorouter:monorouter /home/monorouter && \
+RUN chown -R ubuntu:ubuntu /home/ubuntu && \
     chmod +x /docker-entrypoint.sh
 
-USER monorouter
+USER ubuntu
 ENTRYPOINT ["/docker-entrypoint.sh"]

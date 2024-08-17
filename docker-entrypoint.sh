@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #### TODO: This File Needs Hardening And Cleaning Up.
 
-BUILDROOT_DIR="/home/monorouter/buildroot"
+MONOROUTER_DIR="/home/ubuntu/mono_filesystem"
+BUILDROOT_DIR="$MONOROUTER_DIR/buildroot"
 
 if [ -z "$(ls -A $BUILDROOT_DIR)" ]; then
     echo "The directory $BUILDROOT_DIR not found. Cloning into Buildroot"
@@ -14,12 +15,12 @@ else
 fi
 
 initConfig() {
-    make BR2_EXTERNAL=/home/monorouter/mono_filesystem ls1046a-rdb_defconfig
+    make BR2_EXTERNAL=$MONOROUTER_DIR ls1046a-rdb_defconfig
 }
 
 buildRoot() {
     make -j`nproc`
-    cp -r $BUILDROOT_DIR/output/images/* /home/monorouter/mono_filesystem/image
+    cp -r $BUILDROOT_DIR/output/images/* $MONOROUTER_DIR/image
 }
 
 # Main script logic
