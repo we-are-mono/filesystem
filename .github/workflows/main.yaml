@@ -16,6 +16,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Set xtool Path
         run: mkdir /opt/x-tools
+      - name: Cache X-Tools
+        id: cache-xtools
+        uses: actions/cache/restore@v4
+        with:
+          path: /opt/x-tools
+          key: ${{ runner.os }}-xtools-${{ hashFiles('configs/crosstool-ng-1.26.0_defconfig') }}
       - name: Fetch X-Tools
         uses: actions/checkout@v4
         with:
@@ -23,6 +29,7 @@ jobs:
           path: crosstool-ng
           ref: crosstool-ng-1.26.0
       - name: Build X-Tools
+        if: steps.cache-xtools.outputs.cache-hit != 'true'
         run: |
           cd $GITHUB_WORKSPACE/crosstool-ng
           ./bootstrap
@@ -30,6 +37,12 @@ jobs:
           make -j`nproc`
           DEFCONFIG=../configs/crosstool-ng-1.26.0_defconfig ./ct-ng defconfig && \
           ./ct-ng build -j`nproc`
+      - name: Update X-Tools Cache
+        if: steps.cache-xtools.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: /opt/x-tools
+          key: ${{ runner.os }}-xtools-${{ hashFiles('configs/crosstool-ng-1.26.0_defconfig') }}
       - name: Fetch BuildRoot
         uses: actions/checkout@v4
         with:
