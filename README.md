@@ -92,6 +92,14 @@ This image has two interfaces:
 - `eth0`, which doesn't have an IP configured and is meant as the WAN
 - `eth1`, which has a static IP of 10.0.10.1 and is meant as LAN and has DHCP server bound to it
 
+### Using Docker
+First, make sure to have docker installed. Then run the below build command to prep the environment. Then use the docker run command to get into a persistent build environment for buildroot. First runs will always take a long time, but subsequent builds will be faster.
+
+```console
+docker build -t mono-linux .
+docker run --rm -it -v $PWD:/home/ubuntu/mono_filesystem mono-linux <command>
+```
+
 **TODO:** Make the interfaces more freely configurable
 
 If you have the LS1046A-RDB (or any other arm64 board should work, but we haven't tested any, yet), you can test this filesystem by mounting it through NFS; First, create a directory that you'll share with the network (modify IP and directory name as needed).
